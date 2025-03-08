@@ -1,6 +1,8 @@
 import React from "react";
 import Maze from "./Maze";
 import useAgents from "../hooks/useAgents";
+import useMaze from "../hooks/useMaze";
+import useStatus from "../hooks/useStatus";
 
 export default function RaceMazes() {
   const [agents, _] = useAgents();
@@ -14,6 +16,11 @@ export default function RaceMazes() {
       return "A* Search";
     }
   };
+
+  const { setStep } = useStatus();
+  const [maze, setMaze] = useMaze();
+  if (!maze) return;
+  if (maze.width > 15 || maze.height > 15) setStep("waiting");
 
   return (
     <div className="flex w-full h-full min-h-[80vh] items-center justify-center gap-4">
