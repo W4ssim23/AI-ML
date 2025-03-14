@@ -39,5 +39,4 @@ def calculate_and_plot_shortest_path(points):
     
     plt.show()
 
-print("Please click on the map to select two points.")
 plt.show()
