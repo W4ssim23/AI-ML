@@ -5,7 +5,7 @@ import { checkWinner, getRandomPhrase } from "./lib/func";
 
 const TicTacToe = () => {
   const [board, setBoard] = useState(Array(9).fill(null));
-  const [playerRole, setPlayerRole] = useState(null); // null initially to allow role selection
+  const [playerRole, setPlayerRole] = useState(null);
   const [isAgentTurn, setIsAgentTurn] = useState(false);
   const [message, setMessage] = useState("Choose your role to begin.");
   const [gameStarted, setGameStarted] = useState(false);
