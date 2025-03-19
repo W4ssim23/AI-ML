@@ -1,3 +1,5 @@
+import { agent } from "./agent";
+
 class Snake {
   constructor(cellsOnX, cellsOnY, cellSize, delay) {
     this.xpos = cellSize * 2;
@@ -20,10 +22,10 @@ class Snake {
   }
 
   draw(ctx) {
-    ctx.fillStyle = "blue";
+    ctx.fillStyle = "red";
     ctx.fillRect(this.fruitX, this.fruitY, this.cellSize, this.cellSize);
 
-    ctx.fillStyle = "red";
+    ctx.fillStyle = "green";
     this.body.map((val) => {
       ctx.fillRect(val[0], val[1], this.cellSize, this.cellSize);
     });
@@ -72,6 +74,17 @@ class Snake {
     ctx.clearRect(0, 0, w, h);
 
     const head = [...this.body[0]];
+    const fruit = [this.fruitX, this.fruitY];
+    const arena = {
+      head: head,
+      body: this.body,
+      cellSize: this.cellSize,
+      cellsOnX: this.cellsOnX,
+      cellsOnY: this.cellsOnY,
+    };
+
+    this.setDirection(agent(this.direction, fruit, arena));
+
     switch (this.direction) {
       case "up":
         head[1] -= this.cellSize;
