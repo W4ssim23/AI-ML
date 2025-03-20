@@ -40,7 +40,6 @@ const heuristic = (a, b) => {
 };
 
 const a_star = (start, end, arena) => {
-  console.log(start, end, arena);
   const gScore = new Map();
   const openSet = new Heapq();
   const visited = new Set();
@@ -92,8 +91,92 @@ const getDirection = (current, next) => {
   return null;
 };
 
-// temp agent till upgrading with the hamlton solution
-const agent = (currentDirection, fruit, arena) => {
+const hamiltonCycle = (cellsOnX, cellsOnY) => {
+  const grid = Array.from({ length: cellsOnY }, () =>
+    Array.from({ length: cellsOnX }, () => false)
+  );
+
+  let counter = 1;
+
+  grid[0][0] = 0;
+
+  for (let y = 0; y < cellsOnY; y++) {
+    if (y % 2 === 0) {
+      for (let x = 1; x < cellsOnX; x++) {
+        grid[y][x] = counter++;
+      }
+    } else {
+      for (let x = cellsOnX - 1; x > 0; x--) {
+        grid[y][x] = counter++;
+      }
+    }
+  }
+
+  for (let y = cellsOnY - 1; y > 0; y--) grid[y][0] = counter++;
+
+  const positions = new Map();
+  for (let y = 0; y < cellsOnY; y++) {
+    for (let x = 0; x < cellsOnX; x++) {
+      positions.set(grid[y][x], [x, y]);
+    }
+  }
+
+  const path = [];
+  const totalCells = cellsOnX * cellsOnY;
+
+  for (let i = 0; i < totalCells; i++) {
+    const [x, y] = positions.get(i);
+    path.push([x * 20, y * 20]);
+  }
+
+  path.push(path[0]);
+
+  return path;
+};
+
+const nextHamiltonBlock = (a, cycle) => {
+  const currentIndex = cycle.findIndex(
+    (val) => val[0] === a[0] && val[1] === a[1]
+  );
+  if (currentIndex < cycle.length - 1) return cycle[currentIndex + 1];
+  return cycle[0];
+};
+
+const takeShortcut = (shortCut, cycle, arena) => {
+  const { head, body } = arena;
+  const tail = body[body.length - 1];
+
+  if (body.some((val) => val[0] === shortCut[0] && val[1] === shortCut[1])) {
+    return false;
+  }
+
+  const headIndex = cycle.findIndex(
+    (val) => val[0] === head[0] && val[1] === head[1]
+  );
+  const tailIndex = cycle.findIndex(
+    (val) => val[0] === tail[0] && val[1] === tail[1]
+  );
+  const shortCutIndex = cycle.findIndex(
+    (val) => val[0] === shortCut[0] && val[1] === shortCut[1]
+  );
+
+  if (headIndex === -1 || tailIndex === -1 || shortCutIndex === -1) {
+    console.log("failed to get indexes");
+    return false;
+  }
+
+  if (tailIndex > headIndex) {
+    return shortCutIndex > headIndex && shortCutIndex + 1 < tailIndex;
+  } else {
+    if (shortCutIndex > headIndex) {
+      return shortCutIndex + 1 < cycle.length || tailIndex > 0;
+    } else {
+      return shortCutIndex + 1 < tailIndex;
+    }
+  }
+};
+
+const agent = (currentDirection, fruit, arena, cycle) => {
   const start = arena.head;
   const end = fruit;
 
@@ -101,9 +184,15 @@ const agent = (currentDirection, fruit, arena) => {
     const path = a_star(start, end, arena);
     let nextDirection = currentDirection;
 
-    if (path && path.length >= 2 && getDirection(arena.head, path[1])) {
+    if (
+      path &&
+      path.length >= 2 &&
+      getDirection(arena.head, path[1]) &&
+      takeShortcut(path[1], cycle, arena)
+    )
       nextDirection = getDirection(arena.head, path[1]);
-    }
+    else
+      nextDirection = getDirection(arena.head, nextHamiltonBlock(start, cycle));
 
     return nextDirection;
   } catch (error) {
@@ -112,4 +201,4 @@ const agent = (currentDirection, fruit, arena) => {
   }
 };
 
-export { agent };
+export { agent, hamiltonCycle };

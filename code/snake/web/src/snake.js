@@ -1,4 +1,4 @@
-import { agent } from "./agent";
+import { agent, hamiltonCycle } from "./agent";
 
 class Snake {
   constructor(cellsOnX, cellsOnY, cellSize, delay) {
@@ -19,6 +19,8 @@ class Snake {
     this.cellsOnY = cellsOnY;
     this.delay = delay;
     this.lastUpdate = 0;
+
+    this.hamlitonCycle = hamiltonCycle(this.cellsOnX, this.cellsOnY);
   }
 
   draw(ctx) {
@@ -83,7 +85,7 @@ class Snake {
       cellsOnY: this.cellsOnY,
     };
 
-    this.setDirection(agent(this.direction, fruit, arena));
+    this.setDirection(agent(this.direction, fruit, arena, this.hamlitonCycle));
 
     switch (this.direction) {
       case "up":
