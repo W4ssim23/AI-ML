@@ -1,9 +1,9 @@
 import { agent, hamiltonCycle } from "./agent";
 
 class Snake {
-  constructor(cellsOnX, cellsOnY, cellSize, delay) {
-    this.xpos = cellSize * 2;
-    this.ypos = cellSize * 2;
+  constructor(cellsOnX, cellsOnY, cellSize, delay = 50) {
+    this.xpos = 0;
+    this.ypos = 0;
     this.cellSize = cellSize;
     this.direction = "right";
     this.body = [

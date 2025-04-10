@@ -15,6 +15,17 @@ class Heapq {
   }
 }
 
+class TableCell {
+  constructor() {
+    this.idx = null;
+    this.direc = null;
+  }
+  reset() {
+    this.idx = null;
+    this.direc = null;
+  }
+}
+
 const getReachableNeighbours = (arena) => {
   const { head, body, cellSize, cellsOnX, cellsOnY } = arena;
 
@@ -91,7 +102,7 @@ const getDirection = (current, next) => {
   return null;
 };
 
-const hamiltonCycle = (cellsOnX, cellsOnY) => {
+const hamiltonCycle = (cellsOnX, cellsOnY, cellSize = 20) => {
   const grid = Array.from({ length: cellsOnY }, () =>
     Array.from({ length: cellsOnX }, () => false)
   );
@@ -126,11 +137,11 @@ const hamiltonCycle = (cellsOnX, cellsOnY) => {
 
   for (let i = 0; i < totalCells; i++) {
     const [x, y] = positions.get(i);
-    path.push([x * 20, y * 20]);
+    path.push([x * cellSize, y * cellSize]);
   }
 
-  path.push(path[0]);
-
+  path.cellsOnX = cellsOnX;
+  path.cellsOnY = cellsOnY;
   return path;
 };
 
@@ -138,17 +149,20 @@ const nextHamiltonBlock = (a, cycle) => {
   const currentIndex = cycle.findIndex(
     (val) => val[0] === a[0] && val[1] === a[1]
   );
-  if (currentIndex < cycle.length - 1) return cycle[currentIndex + 1];
-  return cycle[0];
+  if (currentIndex === -1) return null;
+  const nextIndex = (currentIndex + 1) % cycle.length;
+  return cycle[nextIndex];
 };
 
-const takeShortcut = (shortCut, cycle, arena) => {
+const relativeDistance = (a, b, len) => {
+  if (a > b) b += len;
+  return b - a;
+};
+
+const takeShortCut = (fruit, cycle, arena) => {
   const { head, body } = arena;
   const tail = body[body.length - 1];
-
-  if (body.some((val) => val[0] === shortCut[0] && val[1] === shortCut[1])) {
-    return false;
-  }
+  const next = nextHamiltonBlock(head, cycle);
 
   const headIndex = cycle.findIndex(
     (val) => val[0] === head[0] && val[1] === head[1]
@@ -156,24 +170,28 @@ const takeShortcut = (shortCut, cycle, arena) => {
   const tailIndex = cycle.findIndex(
     (val) => val[0] === tail[0] && val[1] === tail[1]
   );
-  const shortCutIndex = cycle.findIndex(
-    (val) => val[0] === shortCut[0] && val[1] === shortCut[1]
+  const fruitIndex = cycle.findIndex(
+    (val) => val[0] === fruit[0] && val[1] === fruit[1]
+  );
+  const nextIndex = cycle.findIndex(
+    (val) => val[0] === next[0] && val[1] === next[1]
   );
 
-  if (headIndex === -1 || tailIndex === -1 || shortCutIndex === -1) {
-    console.log("failed to get indexes");
+  if (
+    headIndex === -1 ||
+    tailIndex === -1 ||
+    nextIndex === -1 ||
+    fruitIndex === -1
+  ) {
     return false;
   }
 
-  if (tailIndex > headIndex) {
-    return shortCutIndex > headIndex && shortCutIndex + 1 < tailIndex;
-  } else {
-    if (shortCutIndex > headIndex) {
-      return shortCutIndex + 1 < cycle.length || tailIndex > 0;
-    } else {
-      return shortCutIndex + 1 < tailIndex;
-    }
-  }
+  const len = cycle.length;
+  const head_rel = relativeDistance(tailIndex, headIndex, len);
+  const fruit_rel = relativeDistance(tailIndex, fruitIndex, len);
+  const next_rel = relativeDistance(tailIndex, nextIndex, len);
+
+  return next_rel > head_rel && next_rel <= fruit_rel;
 };
 
 const agent = (currentDirection, fruit, arena, cycle) => {
@@ -184,19 +202,40 @@ const agent = (currentDirection, fruit, arena, cycle) => {
     const path = a_star(start, end, arena);
     let nextDirection = currentDirection;
 
-    if (
-      path &&
-      path.length >= 2 &&
-      getDirection(arena.head, path[1]) &&
-      takeShortcut(path[1], cycle, arena)
-    )
-      nextDirection = getDirection(arena.head, path[1]);
-    else
-      nextDirection = getDirection(arena.head, nextHamiltonBlock(start, cycle));
+    const cellsOnX = cycle.cellsOnX;
+    const cellsOnY = cycle.cellsOnY;
+    const mapCapacity = cellsOnX * cellsOnY;
+    const snakeLen = arena.body.length;
+    const shouldCheckShortcut = snakeLen < 0.5 * mapCapacity;
+
+    let allowShortcut = shouldCheckShortcut;
+    if (shouldCheckShortcut && path && path.length === 1) {
+      const tail = arena.body[arena.body.length - 1];
+      const dx = Math.abs(fruit[0] - tail[0]);
+      const dy = Math.abs(fruit[1] - tail[1]);
+      const isAdjacent =
+        (dx === arena.cellSize && dy === 0) ||
+        (dy === arena.cellSize && dx === 0);
+      if (isAdjacent) {
+        allowShortcut = false;
+      }
+    }
+
+    if (allowShortcut && path && path.length >= 2) {
+      const nextDir = getDirection(arena.head, path[1]);
+      if (nextDir && takeShortCut(fruit, cycle, arena)) {
+        nextDirection = nextDir;
+      } else {
+        const nextBlock = nextHamiltonBlock(start, cycle);
+        nextDirection = getDirection(arena.head, nextBlock);
+      }
+    } else {
+      const nextBlock = nextHamiltonBlock(start, cycle);
+      nextDirection = getDirection(arena.head, nextBlock);
+    }
 
     return nextDirection;
   } catch (error) {
-    console.error("Error in agent:", error);
     return currentDirection;
   }
 };

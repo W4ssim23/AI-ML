@@ -1,0 +1,49 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-rgb: 255, 255, 255;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: rgb(var(--background-rgb));
+}
+
+.leaflet-container {
+  height: 100%;
+  width: 100%;
+}
+
+.map-container {
+  /* height: calc(100vh - 8rem); */
+  height: 100vh;
+  width: 100%;
+  position: relative;
+  z-index: 0;
+}
+
+.status-panel {
+  position: absolute;
+  top: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  background-color: white;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  min-width: 16rem;
+  text-align: center;
+}
+
+.reset-button {
+  @apply mt-3 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-colors;
+}
+
+.info-button {
+  @apply mt-3 ml-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors;
+}

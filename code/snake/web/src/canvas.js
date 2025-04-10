@@ -9,38 +9,12 @@ let cellOnY = Math.floor((window.innerHeight * 0.8) / 20);
 let cellOnX = Math.floor((window.innerWidth * 0.8) / 20);
 
 if (cellOnY % 2 !== 0) cellOnY += 1; //bc of my hamilton logic,this insures that we always get one
+if (cellOnX % 2 !== 0) cellOnX += 1;
 
 canvas.height = cellOnY * 20;
 canvas.width = cellOnX * 20;
 
-window.addEventListener("resize", () => {
-  cellOnX = Math.floor((window.innerHeight * 0.8) / 20);
-  cellOnY = Math.floor((window.innerWidth * 0.8) / 20);
-  canvas.height = cellOnX * 20;
-  canvas.width = cellOnY * 20;
-});
-
-const snake = new Snake(cellOnX, cellOnY, cellSize, 0);
-
-// deactivating the manual controlls for now
-// const updateDirection = (e) => {
-//   switch (e.key) {
-//     case "ArrowUp":
-//       snake.setDirection("up");
-//       break;
-//     case "ArrowDown":
-//       snake.setDirection("down");
-//       break;
-//     case "ArrowLeft":
-//       snake.setDirection("left");
-//       break;
-//     case "ArrowRight":
-//       snake.setDirection("right");
-//       break;
-//   }
-// };
-
-// window.addEventListener("keydown", updateDirection);
+const snake = new Snake(cellOnX, cellOnY, cellSize, 20);
 
 snake.draw(ctx);
 
