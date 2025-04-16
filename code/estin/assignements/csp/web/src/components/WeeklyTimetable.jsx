@@ -1,14 +1,30 @@
-const WeeklyTimetable = ({ timetable }) => {
+import { useEffect, useState } from "react";
+import useTimetable from "../hooks/useTimetable";
+import useSelectedGroup from "../hooks/useSelectedGroup";
+
+const WeeklyTimetable = () => {
+  const [selectedGroup, setSelectedGroup] = useSelectedGroup();
+  const [csTable] = useTimetable();
+  const [timeTable, setTimetable] = useState(csTable[selectedGroup]);
+
   const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"];
   const timeSlots = ["8:00", "9:30", "11:00", "12:30", "14:00"];
 
+  useEffect(() => {
+    setTimetable(csTable[selectedGroup]);
+    // console.log("executed");
+  }, [selectedGroup, csTable]);
+
   return (
     <div className="bg-white rounded-lg shadow overflow-hidden">
-      <h2 className="text-xl font-semibold p-4 border-b">Weekly Timetable</h2>
+      <div className="flex justify-between gap-2 p-4 border-b">
+        <h2 className="text-xl font-semibold">Weekly Timetable</h2>
+        <GroupSelector setSelectedGroup={setSelectedGroup} />
+      </div>
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
           <TableHead days={days} />
-          <TableBody days={days} timeSlots={timeSlots} timetable={timetable} />
+          <TableBody days={days} timeSlots={timeSlots} timetable={timeTable} />
         </table>
       </div>
     </div>
@@ -16,6 +32,27 @@ const WeeklyTimetable = ({ timetable }) => {
 };
 
 export default WeeklyTimetable;
+
+function GroupSelector({ setSelectedGroup }) {
+  return (
+    <select
+      onChange={(e) => {
+        // console.log("eee");
+        // console.log(e.target.value);
+        setSelectedGroup(e.target.value);
+      }}
+      id="group"
+      className="block pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+    >
+      <option>G1</option>
+      <option>G2</option>
+      <option>G3</option>
+      <option>G4</option>
+      <option>G5</option>
+      <option>G6</option>
+    </select>
+  );
+}
 
 function TableHead({ days }) {
   return (
@@ -63,6 +100,9 @@ function TableBody({ days, timeSlots, timetable }) {
     <tbody className="bg-white divide-y divide-gray-200">
       {timeSlots.map((time) => (
         <tr key={time}>
+          {/* <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+            G5
+          </td> */}
           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
             {time}
           </td>

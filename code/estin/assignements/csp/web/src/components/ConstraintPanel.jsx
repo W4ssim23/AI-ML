@@ -1,18 +1,20 @@
-const ConstraintPanel = ({ constraints, setConstraints }) => {
+import useConstraints from "../hooks/useConstraints";
+
+const ConstraintPanel = () => {
+  const [constraints, setConstraints] = useConstraints();
+
   const toggleConstraint = (type, id) => {
     setConstraints((prev) => {
       const updatedConstraints = { ...prev };
       const constraintIndex = updatedConstraints[type].findIndex(
         (c) => c.id === id
       );
-
       if (constraintIndex !== -1) {
         updatedConstraints[type][constraintIndex] = {
           ...updatedConstraints[type][constraintIndex],
           enabled: !updatedConstraints[type][constraintIndex].enabled,
         };
       }
-
       return updatedConstraints;
     });
   };

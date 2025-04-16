@@ -191,7 +191,8 @@ const takeShortCut = (fruit, cycle, arena) => {
   const fruit_rel = relativeDistance(tailIndex, fruitIndex, len);
   const next_rel = relativeDistance(tailIndex, nextIndex, len);
 
-  return next_rel > head_rel && next_rel <= fruit_rel;
+  // return next_rel > head_rel && next_rel <= fruit_rel;
+  return next_rel > head_rel;
 };
 
 const agent = (currentDirection, fruit, arena, cycle) => {
