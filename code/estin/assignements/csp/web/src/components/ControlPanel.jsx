@@ -5,7 +5,7 @@ import { cs_courses, cs_timestable } from "../lib/data";
 import CSPSolver from "../lib/engine";
 
 const ControlPanel = () => {
-  const [_, setTimetable] = useTimetable();
+  const [timeTable, setTimetable] = useTimetable();
   const [constraints] = useConstraints();
   const [algorithm, setAlgorithm] = useState("backtracking");
   const [loading, setLoading] = useState(false);
@@ -15,26 +15,19 @@ const ControlPanel = () => {
   const runProgram = () => {
     setLoading(true);
 
-    // Extract algorithm options from selection
     const useAC3 = algorithm.includes("AC3");
     const useMRV = algorithm.includes("MRV");
 
-    // Create solver instance with courses, constraints, and group count
     const solver = new CSPSolver(cs_courses, null, constraints, groupCount);
 
-    // Run solver in a timeout to prevent UI freezing
     setTimeout(() => {
       try {
-        // Solve the timetable problem
-        const result = solver.solve(useAC3, useMRV);
-
+        const result = solver.solve(useAC3, useMRV, true);
         if (result.success) {
-          // The result timetable is already formatted for all groups
           console.log(result);
           setTimetable(result.timetable);
           setStats(result.stats);
         } else {
-          // Handle case where no solution was found
           alert(
             "No solution found. Try different constraints, algorithm options, or fewer groups."
           );
@@ -50,7 +43,7 @@ const ControlPanel = () => {
   };
 
   const exportSchedule = () => {
-    const timetableJson = JSON.stringify(cs_timestable, null, 2);
+    const timetableJson = JSON.stringify(timeTable, null, 2);
     const blob = new Blob([timetableJson], { type: "application/json" });
     const url = URL.createObjectURL(blob);
 

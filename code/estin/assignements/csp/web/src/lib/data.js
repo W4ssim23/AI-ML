@@ -94,4 +94,4 @@ const cs_constraints = {
   ],
 };
 
-export { cs_courses, week, cs_constraints, cs_timestable };
+export { cs_courses, cs_constraints, cs_timestable };
