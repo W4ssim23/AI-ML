@@ -7,7 +7,7 @@ import CSPSolver from "../lib/engine";
 const ControlPanel = () => {
   const [timeTable, setTimetable] = useTimetable();
   const [constraints] = useConstraints();
-  const [algorithm, setAlgorithm] = useState("backtracking");
+  const [algorithm, setAlgorithm] = useState("backtracking+AC3+MRV");
   const [loading, setLoading] = useState(false);
   const [stats, setStats] = useState(null);
   const [groupCount, setGroupCount] = useState(6);
